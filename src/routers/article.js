@@ -56,35 +56,43 @@ router.get('/article/:id',auth,async(req,res)=>{
         res.status(500).send()
     }
 })
-router.patch('/article/:id',async(req,res)=>{
+// 
+router.patch('/article/:id', auth, async (req, res) => {
+    const updates = Object.keys(req.body);
+    const allowedUpdates = ['Name', 'Description', 'Author'];
+    const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
-    const updates=Object.keys(req.body);
-    const allowedUpdates=['Name','Description','Author']
-    const isValidOperation=updates.every((update)=>allowedUpdates.includes(update))
-    if(!isValidOperation){
-        return res.status(400).send({error:'invalid updates'})
-    }try{
-        const article=await Articles.findOne({_id:req.params.id,owner:req.user._id})
-        // const article=await Articles.findById(req.params.id)
-        
-        if(!article){
-            return res.status(404).send()
+    if (!isValidOperation) {
+        return res.status(400).send({ error: 'Invalid updates' });
+    }
+
+    try {
+        const article = await Articles.findOne({ _id: req.params.id, owner: req.user._id });
+
+        if (!article) {
+            return res.status(404).send();
         }
-        updates.forEach((update)=>article[update]=req.body[update])
-        await task.save();
-        res.send(!articles)
-        console.log("Task Got Updates ");
-    }catch(e){
+
+        updates.forEach((update) => article[update] = req.body[update]);
+        await article.save();
+        
+        res.send(article);
+        console.log("Article Got Updates");
+    } catch (e) {
+    
         res.status(400).send(e);
     }
-})
+});
 
-router.delete('/article/:id',async(req,res)=>{
+
+router.delete('/article/:id',auth,async(req,res)=>{
     try{
-         const article=await Articles.findByIdAndDelete(req.params.id)
+        //  const article=await Articles.findByIdAndDelete(req.params.id)
+                const article = await Articles.findOneAndDelete({_id:req.params.id,owner:req.user._id})
          if(!article){
             return res.status(404).send()
          }
+        console.log("Article deleted Sucessfully");
     }catch(e){
           res.send(500).send()
     }  
