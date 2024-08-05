@@ -29,7 +29,4 @@ const Article=mongoose.model('Article',{
 
 
 });
-
-
-
 module.exports=Article;

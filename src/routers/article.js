@@ -89,6 +89,7 @@ router.delete('/article/:id',auth,async(req,res)=>{
     try{
         //  const article=await Articles.findByIdAndDelete(req.params.id)
                 const article = await Articles.findOneAndDelete({_id:req.params.id,owner:req.user._id})
+                
          if(!article){
             return res.status(404).send()
          }
